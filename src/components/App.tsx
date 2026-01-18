@@ -16,6 +16,9 @@ import {
 } from "../utils/storage";
 import { copyImageToClipboard } from "../utils/clipboard";
 import BigText from "ink-big-text";
+import Spinner from "ink-spinner";
+import { SelectList } from "./SelectList";
+import { CommandInput } from "./CommandInput";
 
 type AppState =
   | "input"
@@ -40,7 +43,6 @@ function AppContent() {
   const [imageResult, setImageResult] = useState<ImageResult | null>(null);
   const [history, setHistory] = useState<HistoryEntry[]>([]);
   const [copyStatus, setCopyStatus] = useState<string | null>(null);
-  const [selectedIndex, setSelectedIndex] = useState(0);
   const [apiKey, setApiKey] = useState<string | null>(null);
   const [setupInput, setSetupInput] = useState("");
   const [selectedModel, setSelectedModel] = useState<string>(DEFAULT_MODEL);
@@ -74,28 +76,26 @@ function AppContent() {
     });
   }, []);
 
+  function selectHistoryOption(index: number) {
+    const selected = history[index];
+    if (selected) {
+      setImageResult({
+        filepath: selected.imagePath,
+        prompt: selected.prompt,
+      });
+      setState("viewing");
+    }
+  }
+
+  function quitHistory() {
+    setState("input");
+    setPrompt("");
+  }
+
   // Handle keyboard navigation in history view
   useInput(
     (input, key) => {
-      if (state === "history") {
-        if (key.upArrow) {
-          setSelectedIndex((prev) => Math.max(0, prev - 1));
-        } else if (key.downArrow) {
-          setSelectedIndex((prev) => Math.min(history.length - 1, prev + 1));
-        } else if (key.return) {
-          const selected = history[selectedIndex];
-          if (selected) {
-            setImageResult({
-              filepath: selected.imagePath,
-              prompt: selected.prompt,
-            });
-            setState("viewing");
-          }
-        } else if (key.escape || input === "q") {
-          setState("input");
-          setPrompt("");
-        }
-      } else if (state === "viewing") {
+      if (state === "viewing") {
         if (key.return || key.escape || input === "q") {
           setState("history");
           setCopyStatus(null);
@@ -107,8 +107,21 @@ function AppContent() {
         }
       }
     },
-    { isActive: state === "history" || state === "viewing" },
+    { isActive: state === "viewing" },
   );
+
+  function selectModelOption(index: number) {
+    const model = AVAILABLE_MODELS[index];
+    if (model) {
+      setSelectedModel(model.id);
+      saveSelectedModel(model.id);
+      setState("input");
+    }
+  }
+
+  function quitModels() {
+    setState("input");
+  }
 
   // Handle keyboard navigation in models view
   useInput(
@@ -133,12 +146,11 @@ function AppContent() {
     { isActive: state === "models" },
   );
 
-  const handleSubmit = async (value: string) => {
+  async function handleSubmit(value: string) {
     // Check for /history command
     if (value.trim().toLowerCase() === "/history") {
       const entries = await loadHistory();
       setHistory(entries);
-      setSelectedIndex(0);
       setState("history");
       setPrompt("");
       return;
@@ -198,7 +210,7 @@ function AppContent() {
       );
       setState("error");
     }
-  };
+  }
 
   const handleReset = () => {
     setPrompt("");
@@ -214,33 +226,22 @@ function AppContent() {
       )}
 
       {state === "input" && (
-        <>
-          <Box
-            flexDirection="column"
-            borderStyle="round"
-            borderColor="grey"
-            paddingX={1}
-          >
-            <Box>
-              <Text color="green">&gt; </Text>
-              <TextInput
-                value={prompt}
-                onChange={setPrompt}
-                onSubmit={handleSubmit}
-                placeholder="Generate an image or type /help for commands..."
-              />
-            </Box>
-          </Box>
-          <Box marginTop={1}>
-            <Text color="grey">Model: </Text>
-            <Text color="green">{selectedModelName}</Text>
-          </Box>
-        </>
+        <CommandInput
+          value={prompt}
+          selectedModel={selectedModelName || ""}
+          onChange={setPrompt}
+          onSubmit={handleSubmit}
+        />
       )}
 
       {state === "loading" && (
         <Box flexDirection="column">
-          <Text color="yellow">⏳ Generating image...</Text>
+          <Text color="green">
+            <Text color="grey">
+              <Spinner />
+            </Text>{" "}
+            Generating image...
+          </Text>
           <Text dimColor>Prompt: {prompt}</Text>
         </Box>
       )}
@@ -259,7 +260,7 @@ function AppContent() {
         <Box flexDirection="column">
           <Text color="green">✅ Image generated and saved!</Text>
           <Text dimColor>Saved to: {imageResult.filepath}</Text>
-          <Box marginTop={1} flexDirection="column" height={30}>
+          <Box marginTop={1} flexDirection="column" height={20}>
             <Image key={resizeKey} src={imageResult.filepath} />
           </Box>
           <Box marginTop={1}>
@@ -270,43 +271,31 @@ function AppContent() {
       )}
 
       {state === "history" && (
-        <Box flexDirection="column">
-          <Text bold>📜 Generation History</Text>
-          <Text dimColor>
-            Use ↑↓ to navigate, Enter to view, Esc/q to go back
-          </Text>
-          <Box marginTop={1} flexDirection="column">
-            {history.length === 0 ? (
-              <Text dimColor>No history yet. Generate some images first!</Text>
-            ) : (
-              history.slice(0, 10).map((entry, index) => (
-                <Box key={entry.id}>
-                  <Text
-                    color={index === selectedIndex ? "cyan" : undefined}
-                    bold={index === selectedIndex}
-                  >
-                    {index === selectedIndex ? "▶ " : "  "}
-                    {entry.prompt.slice(0, 60)}
-                    {entry.prompt.length > 60 ? "..." : ""}
-                  </Text>
-                  <Text dimColor>
-                    {" "}
-                    ({new Date(entry.createdAt).toLocaleDateString()})
-                  </Text>
-                </Box>
-              ))
-            )}
-          </Box>
-        </Box>
+        <SelectList
+          title="Generation History"
+          options={history.slice(0, 10).map((entry) => ({
+            id: entry.id,
+            name: entry.prompt.slice(0, 60),
+            description: new Date(entry.createdAt).toLocaleDateString(),
+          }))}
+          onSelect={selectHistoryOption}
+          onQuit={quitHistory}
+        />
       )}
 
       {state === "viewing" && imageResult && (
         <Box flexDirection="column">
-          <Text bold color="magenta">
+          <Text bold color="green">
             📷 Viewing Past Generation
           </Text>
-          <Text>Prompt: {imageResult.prompt}</Text>
-          <Box marginTop={1} flexDirection="column" height={30}>
+          <Box marginTop={1} />
+          <Text color="grey">
+            Prompt:{" "}
+            <Text bold color="white">
+              {imageResult.prompt}
+            </Text>
+          </Text>
+          <Box marginTop={1} flexDirection="column" height={20}>
             <Image key={resizeKey} src={imageResult.filepath} />
           </Box>
           <Box marginTop={1} flexDirection="column">
@@ -353,61 +342,18 @@ function AppContent() {
         </Box>
       )}
 
-      {state === "help" && (
-        <Box flexDirection="column">
-          <Text bold color="cyan">
-            📚 Available Commands
-          </Text>
-          <Box marginTop={1} flexDirection="column">
-            <Text>
-              <Text color="green">/help</Text> - Show this help message
-            </Text>
-            <Text>
-              <Text color="green">/setup</Text> - Configure your OpenRouter API
-              key
-            </Text>
-            <Text>
-              <Text color="green">/models</Text> - Select AI model
-            </Text>
-            <Text>
-              <Text color="green">/history</Text> - Browse past image
-              generations
-            </Text>
-          </Box>
-          <Box marginTop={1}>
-            <Text dimColor>Or just type any prompt to generate an image!</Text>
-          </Box>
-          <Box marginTop={1}>
-            <Text dimColor>Press Enter to go back...</Text>
-          </Box>
-          <TextInput value="" onChange={() => {}} onSubmit={handleReset} />
-        </Box>
-      )}
-
       {state === "models" && (
-        <Box flexDirection="column">
-          <Text bold color="yellow">
-            🤖 Select Model
-          </Text>
-          <Text dimColor>
-            Use ↑↓ to navigate, Enter to select, Esc/q to cancel
-          </Text>
-          <Box marginTop={1} flexDirection="column">
-            {AVAILABLE_MODELS.map((model, index) => (
-              <Box key={model.id}>
-                <Text
-                  color={index === modelIndex ? "cyan" : undefined}
-                  bold={index === modelIndex}
-                >
-                  {index === modelIndex ? "▶ " : "  "}
-                  {model.name}
-                </Text>
-                <Text dimColor> ({model.id})</Text>
-                {model.id === selectedModel && <Text color="green"> ✓</Text>}
-              </Box>
-            ))}
-          </Box>
-        </Box>
+        <SelectList
+          title="Select Model"
+          options={AVAILABLE_MODELS.map((model) => ({
+            id: model.id,
+            name: model.name,
+            description: model.id,
+            selected: model.id === selectedModel,
+          }))}
+          onSelect={selectModelOption}
+          onQuit={quitModels}
+        />
       )}
     </Box>
   );
