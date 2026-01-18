@@ -15,6 +15,7 @@ import {
   type HistoryEntry,
 } from "../utils/storage";
 import { copyImageToClipboard } from "../utils/clipboard";
+import BigText from "ink-big-text";
 
 type AppState =
   | "input"
@@ -47,6 +48,10 @@ function AppContent() {
 
   const { stdout } = useStdout();
   const [resizeKey, setResizeKey] = useState(0);
+
+  const selectedModelName = AVAILABLE_MODELS.find(
+    (m) => m.id === selectedModel,
+  )?.name;
 
   useEffect(() => {
     const handleResize = () => {
@@ -204,25 +209,33 @@ function AppContent() {
 
   return (
     <Box flexDirection="column" padding={1}>
-      <Text bold color="cyan">
-        🎨 AI ASCII Image Generator
-      </Text>
-      <Text dimColor>Powered by OpenRouter + Gemini 2.5 Flash Image</Text>
-      <Box marginTop={1} />
+      {["input", "history", "models"].includes(state) && (
+        <BigText text="imgncli" colors={["green", "green"]} />
+      )}
 
       {state === "input" && (
-        <Box flexDirection="column">
-          <Text>Enter your image prompt (or /history, /setup):</Text>
-          <Box>
-            <Text color="green">&gt; </Text>
-            <TextInput
-              value={prompt}
-              onChange={setPrompt}
-              onSubmit={handleSubmit}
-              placeholder="a cute cat wearing a hat..."
-            />
+        <>
+          <Box
+            flexDirection="column"
+            borderStyle="round"
+            borderColor="grey"
+            paddingX={1}
+          >
+            <Box>
+              <Text color="green">&gt; </Text>
+              <TextInput
+                value={prompt}
+                onChange={setPrompt}
+                onSubmit={handleSubmit}
+                placeholder="Generate an image or type /help for commands..."
+              />
+            </Box>
           </Box>
-        </Box>
+          <Box marginTop={1}>
+            <Text color="grey">Model: </Text>
+            <Text color="green">{selectedModelName}</Text>
+          </Box>
+        </>
       )}
 
       {state === "loading" && (
