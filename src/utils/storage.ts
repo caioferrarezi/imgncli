@@ -28,6 +28,8 @@ export const AVAILABLE_MODELS = [
 
 export const DEFAULT_MODEL = AVAILABLE_MODELS[0]!.id;
 
+export type ModelId = (typeof AVAILABLE_MODELS)[number]["id"];
+
 /**
  * Loads the config from the global config file
  */
@@ -68,15 +70,15 @@ export async function saveApiKey(apiKey: string): Promise<void> {
 /**
  * Loads the selected model from config
  */
-export async function loadSelectedModel(): Promise<string> {
+export async function loadSelectedModel(): Promise<ModelId> {
   const config = await loadConfig();
-  return config.selectedModel || DEFAULT_MODEL;
+  return (config.selectedModel || DEFAULT_MODEL) as ModelId;
 }
 
 /**
  * Saves the selected model to config
  */
-export async function saveSelectedModel(modelId: string): Promise<void> {
+export async function saveSelectedModel(modelId: ModelId): Promise<void> {
   const config = await loadConfig();
   config.selectedModel = modelId;
   await saveConfig(config);
