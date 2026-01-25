@@ -2,6 +2,8 @@
 
 A terminal-based AI image generator that creates images from text prompts using OpenRouter API. Built with [Ink](https://github.com/vadimdemedes/ink) (React for CLI) and [Bun](https://bun.sh/).
 
+https://github.com/user-attachments/assets/2a3c3bae-d0e7-46d3-9c80-52de987ca3da
+
 ## ✨ Features
 
 - 🎨 **AI Image Generation** - Generate images from text prompts using AI models
