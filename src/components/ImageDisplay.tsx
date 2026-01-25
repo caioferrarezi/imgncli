@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Box, Text, useStdout, useInput } from "ink";
+import { Box, Text, useStdout, useInput, Spacer } from "ink";
 import Image from "ink-picture";
 import { copyImageToClipboard } from "../utils/clipboard";
 import { copyImageToDirectory } from "../utils/file";
@@ -7,6 +7,7 @@ import { copyImageToDirectory } from "../utils/file";
 interface ImageDisplayProps {
   filepath: string;
   prompt: string;
+  modelName?: string;
   showSaveInfo?: boolean;
   onBack: () => void;
   backLabel?: string;
@@ -15,6 +16,7 @@ interface ImageDisplayProps {
 export function ImageDisplay({
   filepath,
   prompt,
+  modelName,
   showSaveInfo = false,
   onBack,
   backLabel = "Enter to continue",
@@ -79,7 +81,15 @@ export function ImageDisplay({
           {prompt}
         </Text>
       </Text>
-      <Box marginTop={1} flexDirection="column" height={20}>
+      {modelName && (
+        <Text color="grey">
+          Model:{" "}
+          <Text bold color="white">
+            {modelName}
+          </Text>
+        </Text>
+      )}
+      <Box marginTop={3} flexDirection="column" height={20}>
         <Image key={resizeKey} src={filepath} />
       </Box>
       <Box marginTop={1} flexDirection="column">

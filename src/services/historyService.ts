@@ -21,7 +21,8 @@ export const historyService = {
    */
   async saveImageToHistory(
     base64Data: string,
-    prompt: string
+    prompt: string,
+    model: string
   ): Promise<HistoryEntry> {
     await ensureAppDirectories();
 
@@ -36,6 +37,7 @@ export const historyService = {
       prompt,
       imagePath,
       createdAt: new Date().toISOString(),
+      model,
     };
 
     await historyRepository.add(entry);

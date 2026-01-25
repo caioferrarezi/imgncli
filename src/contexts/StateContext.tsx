@@ -2,6 +2,7 @@ import { createContext, useContext, useState, useEffect } from "react";
 import { configService } from "../services/configService";
 import { historyService } from "../services/historyService";
 import {
+  AVAILABLE_MODELS,
   DEFAULT_MODEL,
   type HistoryEntry,
   type Model,
@@ -10,6 +11,13 @@ import {
 interface ImageResult {
   filepath: string;
   prompt: string;
+  model?: string;
+}
+
+export function getModelName(modelId?: string): string {
+  if (!modelId) return "Unknown";
+  const model = AVAILABLE_MODELS.find((m) => m.id === modelId);
+  return model?.name || modelId;
 }
 
 interface StateContextType {

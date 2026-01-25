@@ -48,10 +48,11 @@ export function InputPage() {
     }
 
     try {
-      const entry = await historyService.saveImageToHistory(result.imageBase64, value);
+      const entry = await historyService.saveImageToHistory(result.imageBase64, value, selectedModel.id);
       setImageResult({
         filepath: entry.imagePath,
         prompt: value,
+        model: selectedModel.id,
       });
       navigate("displaying");
     } catch (err) {

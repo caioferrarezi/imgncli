@@ -3,6 +3,7 @@ export interface HistoryEntry {
   prompt: string;
   imagePath: string;
   createdAt: string;
+  model?: string;
 }
 
 export const AVAILABLE_MODELS = [

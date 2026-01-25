@@ -19,6 +19,7 @@ export function HistoryPage() {
     setImageResult({
       filepath: entry.imagePath,
       prompt: entry.prompt,
+      model: entry.model,
     });
     navigate("viewing");
   }

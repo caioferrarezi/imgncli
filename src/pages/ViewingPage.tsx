@@ -1,7 +1,7 @@
 import React from "react";
 import { Box } from "ink";
 import { ImageDisplay } from "../components/ImageDisplay";
-import { useStateContext } from "../contexts/StateContext";
+import { useStateContext, getModelName } from "../contexts/StateContext";
 import { useRouter } from "../contexts/RouterContext";
 
 interface ViewingPageProps {
@@ -28,6 +28,7 @@ export function ViewingPage({
       <ImageDisplay
         filepath={imageResult.filepath}
         prompt={imageResult.prompt}
+        modelName={getModelName(imageResult.model)}
         showSaveInfo={showSaveInfo}
         onBack={quit}
         backLabel="Enter/Esc to go back"
