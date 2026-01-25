@@ -1,5 +1,4 @@
 import { Box } from "ink";
-import BigText from "ink-big-text";
 import { SelectList } from "../components/SelectList";
 import { useStateContext } from "../contexts/StateContext";
 import { useRouter } from "../contexts/RouterContext";

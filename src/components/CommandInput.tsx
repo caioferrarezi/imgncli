@@ -12,6 +12,7 @@ interface CommandInputProps {
 
 const COMMANDS = [
   { id: "/history", name: "/history", description: "View history" },
+  { id: "/clear", name: "/clear", description: "Clear history" },
   { id: "/setup", name: "/setup", description: "Setup API key" },
   { id: "/models", name: "/models", description: "View models" },
 ];

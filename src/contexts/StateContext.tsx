@@ -1,10 +1,11 @@
 import { createContext, useContext, useState, useEffect } from "react";
-import { AVAILABLE_MODELS, DEFAULT_MODEL } from "../utils/storage";
 import {
   loadHistory,
   loadApiKey,
   loadSelectedModel,
+  DEFAULT_MODEL,
   type HistoryEntry,
+  type Model,
   type ModelId,
 } from "../utils/storage";
 
@@ -14,8 +15,8 @@ interface ImageResult {
 }
 
 interface StateContextType {
-  selectedModel: ModelId;
-  setSelectedModel: (modelId: ModelId) => void;
+  selectedModel: Model;
+  setSelectedModel: (model: Model) => void;
   imageResult: ImageResult | null;
   setImageResult: (result: ImageResult | null) => void;
   history: HistoryEntry[];
@@ -38,7 +39,7 @@ export function useStateContext() {
 }
 
 export function StateProvider({ children }: { children: React.ReactNode }) {
-  const [selectedModel, setSelectedModel] = useState<ModelId>(DEFAULT_MODEL);
+  const [selectedModel, setSelectedModel] = useState<Model>(DEFAULT_MODEL);
   const [imageResult, setImageResult] = useState<ImageResult | null>(null);
   const [history, setHistory] = useState<HistoryEntry[]>([]);
   const [apiKey, setApiKey] = useState<string | null>(null);

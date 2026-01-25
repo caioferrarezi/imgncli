@@ -1,5 +1,15 @@
-import { writeFile } from "fs/promises";
-import { join } from "path";
+import { writeFile, copyFile } from "fs/promises";
+import { join, basename } from "path";
+
+export async function copyImageToDirectory(
+  sourcePath: string,
+  targetDirectory: string,
+): Promise<string> {
+  const filename = basename(sourcePath);
+  const targetPath = join(targetDirectory, filename);
+  await copyFile(sourcePath, targetPath);
+  return targetPath;
+}
 
 export async function saveImage(
   base64Data: string,

@@ -4,7 +4,7 @@ import Spinner from "ink-spinner";
 import { CommandInput } from "../components/CommandInput";
 import { useRouter, type RouteState } from "../contexts/RouterContext";
 import { generateImage } from "../api/openrouter";
-import { saveImageToHistory } from "../utils/storage";
+import { saveImageToHistory, clearHistory } from "../utils/storage";
 import { useStateContext } from "../contexts/StateContext";
 import BigText from "ink-big-text";
 
@@ -12,13 +12,23 @@ export function InputPage() {
   const [loading, setLoading] = useState(false);
   const [prompt, setPrompt] = useState("");
 
-  const { selectedModel, apiKey, setError, setImageResult } = useStateContext();
+  const { selectedModel, apiKey, setError, setImageResult, setHistory } =
+    useStateContext();
   const { navigate } = useRouter();
 
   async function handleSubmit(value: string) {
+    if (!value) return;
+
     const isCommand = value.startsWith("/");
 
     if (isCommand) {
+      if (value === "/clear") {
+        await clearHistory();
+        setHistory([]);
+        setPrompt("");
+        return;
+      }
+
       navigate(value.slice(1) as RouteState);
       return;
     }
@@ -29,7 +39,7 @@ export function InputPage() {
   async function generate(value: string) {
     setLoading(true);
 
-    const result = await generateImage(value, apiKey || "", selectedModel);
+    const result = await generateImage(value, apiKey || "", selectedModel.id);
 
     if (!result.success) {
       setError(result.error);
@@ -73,7 +83,7 @@ export function InputPage() {
       <Box flexDirection="column" padding={1}>
         <CommandInput
           value={prompt}
-          selectedModel={selectedModel}
+          selectedModel={selectedModel.name}
           onChange={setPrompt}
           onSubmit={handleSubmit}
         />

@@ -1,16 +1,16 @@
+import { useEffect } from "react";
 import { Box, Text, useApp, useInput } from "ink";
-import { Router, Route } from "../contexts/RouterContext";
-import { useScreenSize } from "../hooks/useScreenSize";
+import { Router, Route } from "./contexts/RouterContext";
+import { useScreenSize } from "./hooks/useScreenSize";
 
 import {
   InputPage,
   ErrorPage,
-  DisplayingPage,
   HistoryPage,
   ViewingPage,
   SetupPage,
   ModelsPage,
-} from "../pages";
+} from "./pages";
 import { useState } from "react";
 
 export function App() {
@@ -18,6 +18,14 @@ export function App() {
   const { width, height } = useScreenSize();
 
   const [isCtrlCPressed, setIsCtrlCPressed] = useState(false);
+
+  useEffect(() => {
+    if (isCtrlCPressed) {
+      setTimeout(() => {
+        setIsCtrlCPressed(false);
+      }, 1000);
+    }
+  }, [isCtrlCPressed]);
 
   useInput((input, key) => {
     if (key.ctrl && input === "c") {
@@ -37,7 +45,7 @@ export function App() {
         </Route>
 
         <Route state="displaying">
-          <DisplayingPage />
+          <ViewingPage showSaveInfo={true} />
         </Route>
 
         <Route state="history">
@@ -63,7 +71,7 @@ export function App() {
 
       {isCtrlCPressed && (
         <Box paddingX={1}>
-          <Text color="red">Press CTRL+C again to exit</Text>
+          <Text dimColor>Press CTRL+C again to exit</Text>
         </Box>
       )}
     </Box>

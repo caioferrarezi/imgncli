@@ -13,8 +13,8 @@ export function ModelsPage() {
     const model = AVAILABLE_MODELS[index];
 
     if (model) {
-      setSelectedModel(model.id);
-      saveSelectedModel(model.id);
+      setSelectedModel(model);
+      saveSelectedModel(model);
     }
 
     goBack();
@@ -32,7 +32,7 @@ export function ModelsPage() {
           id: model.id,
           name: model.name,
           description: model.id,
-          selected: model.id === selectedModel,
+          selected: model.id === selectedModel.id,
         }))}
         onSelect={handleSelect}
         onQuit={quit}

@@ -51,19 +51,23 @@ export function SelectList({
         <Text dimColor>Use ↑↓ to navigate, Enter to select, Esc to cancel</Text>
       </Box>
       <Box marginTop={1} flexDirection="column">
-        {options.map((item, index) => (
-          <Box key={item.id}>
-            <Text
-              color={index === selectedIndex ? "green" : undefined}
-              bold={index === selectedIndex}
-            >
-              {index === selectedIndex ? "▶ " : "  "}
-              {item.name}
-            </Text>
-            {item.description && <Text dimColor> ({item.description})</Text>}
-            {item.selected && <Text color="green"> ✓</Text>}
-          </Box>
-        ))}
+        {options.length === 0 ? (
+          <Text>No history found</Text>
+        ) : (
+          options.map((item, index) => (
+            <Box key={item.id}>
+              <Text
+                color={index === selectedIndex ? "green" : undefined}
+                bold={index === selectedIndex}
+              >
+                {index === selectedIndex ? "▶ " : "  "}
+                {item.name}
+              </Text>
+              {item.description && <Text dimColor> ({item.description})</Text>}
+              {item.selected && <Text color="green"> ✓</Text>}
+            </Box>
+          ))
+        )}
       </Box>
     </Box>
   );

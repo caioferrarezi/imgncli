@@ -24,11 +24,21 @@ export const AVAILABLE_MODELS = [
     name: "🍌 Nano Banana Pro",
     default: false,
   },
+  {
+    id: "openai/gpt-5-image",
+    name: "GPT-5 Image",
+    default: false,
+  },
+  {
+    id: "openai/gpt-5-image-mini",
+    name: "GPT-5 Image Mini",
+    default: false,
+  },
 ] as const;
 
-export const DEFAULT_MODEL = AVAILABLE_MODELS[0]!.id;
-
-export type ModelId = (typeof AVAILABLE_MODELS)[number]["id"];
+export const DEFAULT_MODEL = AVAILABLE_MODELS[0];
+export type Model = (typeof AVAILABLE_MODELS)[number];
+export type ModelId = Model["id"];
 
 /**
  * Loads the config from the global config file
@@ -70,17 +80,18 @@ export async function saveApiKey(apiKey: string): Promise<void> {
 /**
  * Loads the selected model from config
  */
-export async function loadSelectedModel(): Promise<ModelId> {
+export async function loadSelectedModel(): Promise<Model> {
   const config = await loadConfig();
-  return (config.selectedModel || DEFAULT_MODEL) as ModelId;
+  const modelId = config.selectedModel || DEFAULT_MODEL.id;
+  return AVAILABLE_MODELS.find((m) => m.id === modelId) || DEFAULT_MODEL;
 }
 
 /**
  * Saves the selected model to config
  */
-export async function saveSelectedModel(modelId: ModelId): Promise<void> {
+export async function saveSelectedModel(model: Model): Promise<void> {
   const config = await loadConfig();
-  config.selectedModel = modelId;
+  config.selectedModel = model.id;
   await saveConfig(config);
 }
 
@@ -156,6 +167,14 @@ export async function saveImageToHistory(
   await saveHistory(history);
 
   return entry;
+}
+
+/**
+ * Clears all history entries
+ */
+export async function clearHistory(): Promise<void> {
+  await ensureAppDirectories();
+  await saveHistory([]);
 }
 
 /**

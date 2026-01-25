@@ -4,7 +4,13 @@ import { ImageDisplay } from "../components/ImageDisplay";
 import { useStateContext } from "../contexts/StateContext";
 import { useRouter } from "../contexts/RouterContext";
 
-export function ViewingPage() {
+interface ViewingPageProps {
+  showSaveInfo?: boolean;
+}
+
+export function ViewingPage({
+  showSaveInfo = false,
+}: ViewingPageProps) {
   const { imageResult } = useStateContext();
   const { goBack } = useRouter();
 
@@ -22,7 +28,7 @@ export function ViewingPage() {
       <ImageDisplay
         filepath={imageResult.filepath}
         prompt={imageResult.prompt}
-        showSaveInfo={false}
+        showSaveInfo={showSaveInfo}
         onBack={quit}
         backLabel="Enter/Esc to go back"
       />

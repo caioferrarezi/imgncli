@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { Box, Text, useStdout, useInput } from "ink";
 import Image from "ink-picture";
 import { copyImageToClipboard } from "../utils/clipboard";
+import { copyImageToDirectory } from "../utils/file";
 
 interface ImageDisplayProps {
   filepath: string;
@@ -19,6 +20,7 @@ export function ImageDisplay({
   backLabel = "Enter to continue",
 }: ImageDisplayProps) {
   const [copyStatus, setCopyStatus] = useState<string | null>(null);
+  const [saveStatus, setSaveStatus] = useState<string | null>(null);
   const { stdout } = useStdout();
   const [resizeKey, setResizeKey] = useState(0);
 
@@ -33,7 +35,22 @@ export function ImageDisplay({
     };
   }, [stdout]);
 
+  useEffect(() => {
+    if (copyStatus) {
+      setTimeout(() => {
+        setCopyStatus(null);
+      }, 2000);
+    }
+    if (saveStatus) {
+      setTimeout(() => {
+        setSaveStatus(null);
+      }, 2000);
+    }
+  }, [copyStatus, saveStatus]);
+
   useInput((input, key) => {
+    if (key.ctrl) return;
+
     if (key.return || key.escape || input === "q") {
       onBack();
     } else if (input === "c") {
@@ -41,6 +58,11 @@ export function ImageDisplay({
       copyImageToClipboard(filepath)
         .then(() => setCopyStatus("✅ Copied to clipboard!"))
         .catch(() => setCopyStatus("❌ Failed to copy"));
+    } else if (input === "s") {
+      setSaveStatus("Saving...");
+      copyImageToDirectory(filepath, process.cwd())
+        .then((savedPath) => setSaveStatus(`✅ Saved to ${savedPath}`))
+        .catch(() => setSaveStatus("❌ Failed to save"));
     }
   });
 
@@ -61,7 +83,8 @@ export function ImageDisplay({
         <Image key={resizeKey} src={filepath} />
       </Box>
       <Box marginTop={1} flexDirection="column">
-        <Text dimColor>Press 'c' to copy to clipboard | {backLabel}</Text>
+        <Text dimColor>Press 's' to save | 'c' to copy to clipboard | {backLabel}</Text>
+        {saveStatus && <Text color="green">{saveStatus}</Text>}
         {copyStatus && <Text color="green">{copyStatus}</Text>}
       </Box>
     </Box>
