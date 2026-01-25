@@ -4,7 +4,7 @@ import Spinner from "ink-spinner";
 import { CommandInput } from "../components/CommandInput";
 import { useRouter, type RouteState } from "../contexts/RouterContext";
 import { generateImage } from "../api/openrouter";
-import { saveImageToHistory, clearHistory } from "../utils/storage";
+import { historyService } from "../services/historyService";
 import { useStateContext } from "../contexts/StateContext";
 import BigText from "ink-big-text";
 
@@ -23,7 +23,7 @@ export function InputPage() {
 
     if (isCommand) {
       if (value === "/clear") {
-        await clearHistory();
+        await historyService.clearHistory();
         setHistory([]);
         setPrompt("");
         return;
@@ -48,7 +48,7 @@ export function InputPage() {
     }
 
     try {
-      const entry = await saveImageToHistory(result.imageBase64, value);
+      const entry = await historyService.saveImageToHistory(result.imageBase64, value);
       setImageResult({
         filepath: entry.imagePath,
         prompt: value,

@@ -3,14 +3,14 @@ import { SelectList } from "../components/SelectList";
 import { useStateContext } from "../contexts/StateContext";
 import { useRouter } from "../contexts/RouterContext";
 import { useEffect } from "react";
-import { loadHistory } from "../utils/storage";
+import { historyService } from "../services/historyService";
 
 export function HistoryPage() {
   const { history, setHistory, setImageResult } = useStateContext();
   const { navigate, goBack } = useRouter();
 
   useEffect(() => {
-    loadHistory().then(setHistory);
+    historyService.getHistory().then(setHistory);
   }, []);
 
   function handleSelect(index: number) {

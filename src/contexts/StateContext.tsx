@@ -1,13 +1,11 @@
 import { createContext, useContext, useState, useEffect } from "react";
+import { configService } from "../services/configService";
+import { historyService } from "../services/historyService";
 import {
-  loadHistory,
-  loadApiKey,
-  loadSelectedModel,
   DEFAULT_MODEL,
   type HistoryEntry,
   type Model,
-  type ModelId,
-} from "../utils/storage";
+} from "../database/models";
 
 interface ImageResult {
   filepath: string;
@@ -46,9 +44,9 @@ export function StateProvider({ children }: { children: React.ReactNode }) {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    loadHistory().then(setHistory);
-    loadApiKey().then(setApiKey);
-    loadSelectedModel().then(setSelectedModel);
+    historyService.getHistory().then(setHistory);
+    configService.getApiKey().then(setApiKey);
+    configService.getSelectedModel().then(setSelectedModel);
   }, []);
 
   function reset() {

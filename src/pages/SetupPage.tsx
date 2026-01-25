@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Box, Text, useInput } from "ink";
 import TextInput from "ink-text-input";
-import { saveApiKey } from "../utils/storage";
+import { configService } from "../services/configService";
 import { useStateContext } from "../contexts/StateContext";
 import { useRouter } from "../contexts/RouterContext";
 
@@ -18,7 +18,7 @@ export function SetupPage() {
 
   async function handleSubmit(value: string) {
     if (!value.trim()) return;
-    await saveApiKey(value.trim());
+    await configService.saveApiKey(value.trim());
     setApiKey(value.trim());
     goBack();
   }

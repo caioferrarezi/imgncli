@@ -1,7 +1,8 @@
 import React from "react";
 import { Box } from "ink";
 import { SelectList } from "../components/SelectList";
-import { AVAILABLE_MODELS, saveSelectedModel } from "../utils/storage";
+import { AVAILABLE_MODELS } from "../database/models";
+import { configService } from "../services/configService";
 import { useRouter } from "../contexts/RouterContext";
 import { useStateContext } from "../contexts/StateContext";
 
@@ -14,7 +15,7 @@ export function ModelsPage() {
 
     if (model) {
       setSelectedModel(model);
-      saveSelectedModel(model);
+      configService.saveSelectedModel(model);
     }
 
     goBack();
