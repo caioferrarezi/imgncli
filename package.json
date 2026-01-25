@@ -1,5 +1,5 @@
 {
-  "name": "aiascii",
+  "name": "imgncli",
   "module": "index.ts",
   "type": "module",
   "private": true,
